@@ -1,4 +1,3 @@
-from itsdangerous import json
 import numpy as np
 import os
 from datetime import datetime
@@ -41,7 +40,6 @@ def get_data():
     # Values
     value1 = np.random.randint(0,20)
     value2 = np.random.randint(0,10)
-
 
     # Save data
     save_data(f"{HOME}/data/raw-data-{month}.csv",[ts,value1,value2])

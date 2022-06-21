@@ -8,6 +8,8 @@ from datetime import datetime
 sys.path.append(".")
 from potato_process import *
 
+HOME = os.path.expanduser("~")+"/git_test/adc-proyect"
+
 
 channel_id = 1771605 # PUT CHANNEL ID HERE
 write_key  = 'TL2SQ8QAKQ2UMSPF' # PUT YOUR WRITE KEY HERE
@@ -27,7 +29,6 @@ def measure(channel):
 
     except:
         print("connection failed")
-
 
 if __name__ == "__main__":
     channel = thingspeak.Channel(id=channel_id, api_key=write_key)
