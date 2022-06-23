@@ -3,11 +3,11 @@
     "PROCESS_PERIOD": 0.25,
     "ADC":{
         "SCAN_PERIOD": 100,
-        "NUMBER_OF_PERIODS": 5,
+        "NUMBER_OF_LOOPS": 3,
         "CURVE_PARAMETER":{
-            "initial_value": 2,
-            "max_value": 3,
-            "min_value": 1
+            "initial_value": 0.2,
+            "max_value": 0.5,
+            "min_value": -1
         }
     }
 }

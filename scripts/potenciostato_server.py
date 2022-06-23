@@ -13,6 +13,8 @@ HOME = os.path.expanduser('~')+"/git_test/adc-proyect"
 sys.path.append(f"{HOME}")
 
 from libs.libdata import *
+from libs.libutils import *
+
 
 async def main(loop):
     """
@@ -23,11 +25,22 @@ async def main(loop):
     # Libraries init
     log.debug("Init libraries")
     libdata = Libdata()
-    # libutils = Libutils()
+    libutils = Libutils()
+    libconversor = Libconversor()
 
     # Read potenciotato.json to get the time interval to process
     with open(f"{HOME}/config/potenciostato.json") as file:
         potenciotato_config = json.load(file)
+
+    # Read config.json to get parameters of configuration
+    with open(f"{HOME}/config/config.json") as file:
+        config_json = json.load(file)
+
+    # Set channel of the API
+    libutils.set_channel(config_json["CHANNEL_ID"],config_json["WRITE_KEY"])
+    
+    # Set signal parameters
+    libconversor.set_dac(potenciotato_config["ADC"])
 
     every = 1 # by default, process every 1 minutes
 
@@ -54,50 +67,12 @@ async def main(loop):
         filename_rawdata = f"{HOME}/data/raw-data-{yearmonth}.csv"
 
         if potenciotato_mode:
-            # Get json data
-            jsondata = libdata.get_data()
 
-            # Save in a csv file
-            libdata.save_data(filename_rawdata,jsondata)
+            # Generate signal
+            libconversor.generate_signal(filename_rawdata)
 
-
-            # # Get dataframe and mote list from CSV
-            # df_list, mote_list = get_df(filename_rawdata)
-
-            # for i, df in enumerate(df_list):
-
-            #     # Get dataframe with occupacounter columns
-            #     df_ocp = ocp_proccess(df)
-
-
-            #     log.info("************** Occupacounter Dataframe of {} **************".format(mote_list[i]))
-            #     log.debug("\n{}".format(df_ocp))
-
-            #     # Only save the last 5 minutes
-            #     log.info("************* Last {} minutes Dataframe *************".format(every))
-
-            #     current_time = datetime.now()
-            #     reference_time = current_time - timedelta(minutes = every)
-            #     log.info("Get values since: {}".format(reference_time.strftime("%Y-%m-%d %H:%M:%S")))
-            #     df_to_save = df_ocp.loc[reference_time:]
-            #     log.debug("\n{}".format(df_to_save))
-
-            #     if len(df_to_save):
-   
-            #         # Resample the data to be saved
-            #         log.info("**************** Dataframe Resampled ****************")
-            #         df_resampled = resample_df(df_to_save, rule)
-            #         log.debug("\n{}".format(df_resampled))
-
-            #         # Convert to a list of json objects
-            #         log.info("******************* JSON to save ********************")
-            #         list_json =json_convertor(df_resampled, mote_list[i])
-
-            #         for line in list_json:
-            #             # save data into file
-            #             libdata.savejsondata(filename_generic_rawdata, line)
-            #             libdata.savejsondata(filename_generic_offdata, line)
-            #     log.info("==============================================================")
+            # # Send data
+            # libutils.write_data(jsondata["sensors"]["DAC"],jsondata["sensors"]["ADC"])
 
         else:
             log.warning("No mode is enabled, will not process data")
