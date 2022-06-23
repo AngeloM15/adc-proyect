@@ -7,6 +7,7 @@ from datetime import datetime
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+import Adafruit_MCP4725
 
 module_logger = logging.getLogger('main.libdata')
 log = logging.getLogger('main.libdata.Libdata')
@@ -73,10 +74,10 @@ class Libdata():
         plt.tight_layout()
         plt.show()
 
-
 class Libconversor(Libdata):
     def __init__(self):
         Libdata.__init__(self)
+        self.dac = Adafruit_MCP4725.MCP4725(address=0x60)
 
     def set_dac(self,dac_param):
 
@@ -87,7 +88,9 @@ class Libconversor(Libdata):
         self.min_value = dac_param["CURVE_PARAMETER"]["min_value"]
     
     def send_dac(self, data):
-        pass
+        data_rescaled = data/5*4096
+        log.info(f"Send to DAC ---> {data}V / {data_rescaled}")
+        self.dac.set_voltage(data_rescaled)
 
     def get_adc(self):
         return np.random.normal()
