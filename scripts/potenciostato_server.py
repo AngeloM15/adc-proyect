@@ -24,7 +24,6 @@ async def main(loop):
 
     # Libraries init
     log.debug("Init libraries")
-    libdata = Libdata()
     libutils = Libutils()
     libconversor = Libconversor()
 
@@ -64,12 +63,18 @@ async def main(loop):
         await asyncio.sleep(next_exec)
 
         yearmonth = datetime.now().strftime('%Y-%m')
-        filename_rawdata = f"{HOME}/data/raw-data-{yearmonth}.csv"
+        libconversor.total_file_name = f"{HOME}/data/raw-data-{yearmonth}.csv"
+        libconversor.temporal_file_name = f"{HOME}/data/tem-data-{yearmonth}.csv"
+        # CLear data
+        libconversor.clear_data(libconversor.temporal_file_name)
 
         if potenciotato_mode:
 
             # Generate signal
-            libconversor.generate_signal(filename_rawdata)
+            libconversor.generate_signal()
+
+            # Plot data
+            libconversor.plot_data(libconversor.temporal_file_name)
 
             # # Send data
             # libutils.write_data(jsondata["sensors"]["DAC"],jsondata["sensors"]["ADC"])

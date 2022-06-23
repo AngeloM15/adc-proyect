@@ -1,13 +1,13 @@
 {
     "ENABLE": 1,
-    "PROCESS_PERIOD": 0.25,
+    "PROCESS_PERIOD": 0.1,
     "ADC":{
         "SCAN_PERIOD": 100,
-        "NUMBER_OF_LOOPS": 3,
+        "NUMBER_OF_LOOPS": 2,
         "CURVE_PARAMETER":{
             "initial_value": 0.2,
-            "max_value": 0.5,
-            "min_value": -1
+            "max_value": 0.3,
+            "min_value": -0.3
         }
     }
 }
