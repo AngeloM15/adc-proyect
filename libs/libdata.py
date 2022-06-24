@@ -119,6 +119,7 @@ class Libconversor(Libdata):
 
     def get_adc(self):
         vol_in = self.chan0.voltage
+        log.info(f"voltage: {vol_in}")
         amp_in = (vol_in-1.71)*1000/(8.2*1000)
         return amp_in
         # return np.random.normal()
