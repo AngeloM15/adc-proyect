@@ -96,7 +96,9 @@ class Libconversor(Libdata):
         # self.dac = adafruit_mcp4725.MCP4725(self.i2c)
         # # amp = adafruit_max9744.MAX9744(self.i2c, address=0x60)
 
-        self.scan_period = dac_param["SCAN_PERIOD"]
+        self.scan_rate = dac_param["SCAN_RATE"]
+        self.step = dac_param["STEP"]
+        
         self.n_period = dac_param["NUMBER_OF_LOOPS"]
         self.initial_value = dac_param["CURVE_PARAMETER"]["initial_value"]
         self.max_value = dac_param["CURVE_PARAMETER"]["max_value"]
@@ -119,14 +121,14 @@ class Libconversor(Libdata):
 
     def get_adc(self):
         vol_in = self.chan0.voltage
-        log.info(f"voltage: {vol_in}")
         amp_in = (vol_in-1.71)*1000/(8.2*1000)
-        return amp_in
+        log.info(f"voltage: {round(vol_in,2)}V / current: {round(amp_in,2)}")
+        return round(amp_in,2)
         # return np.random.normal()
 
     def process_data(self,dac_value):
 
-        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")[:-3]
 
         # Send and receive signal
         self.send_dac(dac_value)
@@ -136,14 +138,15 @@ class Libconversor(Libdata):
         self.save_data(self.total_file_name)
         self.save_data(self.temporal_file_name)
 
-        time.sleep(1)
+        time_to_wait = self.step/self.scan_rate
+        time.sleep(time_to_wait)
 
     def generate_signal(self):
         """
         Triangular curve generation using JSON parameters
         """
         initial_value = self.initial_value
-        step = self.scan_period/1000
+        step = self.step
         count = 1
         n_loop = 0
         up = True
