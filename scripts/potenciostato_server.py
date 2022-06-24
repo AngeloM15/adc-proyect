@@ -42,6 +42,7 @@ async def main(loop):
     
     # Set signal parameters
     libconversor.set_dac(potenciotato_config["ADC"])
+    libconversor.set_adc()
 
     every = 1 # by default, process every 1 minutes
 

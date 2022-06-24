@@ -10,7 +10,13 @@ import matplotlib.pyplot as plt
 
 import board
 import busio
+# DAC libraries
 import adafruit_mcp4725
+# ADC libraries
+import adafruit_ads1x15.ads1115 as ADS
+from adafruit_ads1x15.ads1x15 import Mode
+from adafruit_ads1x15.analog_in import AnalogIn
+
 
 module_logger = logging.getLogger('main.libdata')
 log = logging.getLogger('main.libdata.Libdata')
@@ -86,24 +92,36 @@ class Libconversor(Libdata):
         
     def set_dac(self,dac_param):
 
-        # Initialize MCP4725.
-        self.dac = adafruit_mcp4725.MCP4725(self.i2c)
-        # amp = adafruit_max9744.MAX9744(self.i2c, address=0x60)
+        # # Initialize MCP4725.
+        # self.dac = adafruit_mcp4725.MCP4725(self.i2c)
+        # # amp = adafruit_max9744.MAX9744(self.i2c, address=0x60)
 
         self.scan_period = dac_param["SCAN_PERIOD"]
         self.n_period = dac_param["NUMBER_OF_LOOPS"]
         self.initial_value = dac_param["CURVE_PARAMETER"]["initial_value"]
         self.max_value = dac_param["CURVE_PARAMETER"]["max_value"]
         self.min_value = dac_param["CURVE_PARAMETER"]["min_value"]
-    
+
+    def set_adc(self):
+        # Create the ADC object using the I2C bus
+        self.ads = ADS.ADS1115(self.i2c)
+        # Create single-ended input on channel 0
+        self.chan0 = AnalogIn(self.ads, ADS.P0)
+        # ADC Configuration
+        self.ads.mode = Mode.CONTINUOUS
+        # self.ads.data_rate = 16
+
     def send_dac(self, data):
 
         data_rescaled = (5/3)*(1.5-data)
-        self.dac.normalized_value = data_rescaled/5.18
-        log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.18}")
+        # self.dac.normalized_value = data_rescaled/5.18
+        # log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.18}")
 
     def get_adc(self):
-        return np.random.normal()
+        vol_in = self.chan0.voltage
+        amp_in = (vol_in-1.71)*1000/(8.2*1000)
+        return amp_in
+        # return np.random.normal()
 
     def process_data(self,dac_value):
 
