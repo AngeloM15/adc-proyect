@@ -9,7 +9,9 @@ import time
 
 from datetime import datetime
 
-HOME = os.path.expanduser('~')+"/git_test/adc-proyect"
+# HOME = os.path.expanduser('~')+"/git_test/adc-proyect"
+HOME = os.path.expanduser('~')+"/potenciostato-project"
+
 sys.path.append(f"{HOME}")
 
 from libs.libdata import *

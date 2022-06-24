@@ -7,7 +7,10 @@ from datetime import datetime
 
 import seaborn as sns
 import matplotlib.pyplot as plt
-import Adafruit_MCP4725
+
+import board
+import busio
+import adafruit_mcp4725
 
 module_logger = logging.getLogger('main.libdata')
 log = logging.getLogger('main.libdata.Libdata')
@@ -77,9 +80,15 @@ class Libdata():
 class Libconversor(Libdata):
     def __init__(self):
         Libdata.__init__(self)
-        self.dac = Adafruit_MCP4725.MCP4725(address=0x60)
 
+        # Initialize I2C bus.
+        self.i2c = busio.I2C(board.SCL, board.SDA)
+        
     def set_dac(self,dac_param):
+
+        # Initialize MCP4725.
+        self.dac = adafruit_mcp4725.MCP4725(self.i2c)
+        # amp = adafruit_max9744.MAX9744(self.i2c, address=0x60)
 
         self.scan_period = dac_param["SCAN_PERIOD"]
         self.n_period = dac_param["NUMBER_OF_LOOPS"]
@@ -88,9 +97,10 @@ class Libconversor(Libdata):
         self.min_value = dac_param["CURVE_PARAMETER"]["min_value"]
     
     def send_dac(self, data):
-        data_rescaled = data/5*4096
-        log.info(f"Send to DAC ---> {data}V / {data_rescaled}")
-        self.dac.set_voltage(data_rescaled)
+
+        data_rescaled = (5/3)*(1.5-data)
+        self.dac.normalized_value = data_rescaled/5.18
+        log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.18}")
 
     def get_adc(self):
         return np.random.normal()
@@ -110,7 +120,9 @@ class Libconversor(Libdata):
         time.sleep(1)
 
     def generate_signal(self):
-
+        """
+        Triangular curve generation using JSON parameters
+        """
         initial_value = self.initial_value
         step = self.scan_period/1000
         count = 1

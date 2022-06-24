@@ -1,1 +1,3 @@
-# adc-proyect
+# Potenciostato
+
+Project to visualize voltammetric curves
