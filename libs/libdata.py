@@ -64,7 +64,7 @@ class Libdata():
         # Separate sensors column for each key in dictionary
         df = pd.concat([df.drop(['sensors'],axis = 1),pd.json_normalize(df['sensors'])],axis = 1)
         # Define datetime
-        df['DateTime'] = pd.to_datetime(df['timestamp'])
+        df['DateTime'] = pd.to_datetime(df['timestamp'],format= "%Y-%m-%d %H:%M:%S:%f")
         # Datetime as index
         df = df.set_index('DateTime').drop(["timestamp",],axis = 1)
 
@@ -139,6 +139,7 @@ class Libconversor(Libdata):
         self.save_data(self.temporal_file_name)
 
         time_to_wait = self.step/self.scan_rate
+        print()
         time.sleep(time_to_wait)
 
     def generate_signal(self):

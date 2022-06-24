@@ -41,7 +41,7 @@ async def main(loop):
     libutils.set_channel(config_json["CHANNEL_ID"],config_json["WRITE_KEY"])
     
     # Set signal parameters
-    libconversor.set_dac(potenciotato_config["ADC"])
+    libconversor.set_dac(potenciotato_config["DAC"])
     libconversor.set_adc()
 
     every = 1 # by default, process every 1 minutes
