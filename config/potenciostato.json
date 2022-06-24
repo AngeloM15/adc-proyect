@@ -1,14 +1,12 @@
 {
-    "ENABLE": 1,
-    "PROCESS_PERIOD": 0.1,
     "DAC":{
         "STEP":0.0125,
         "SCAN_RATE": 0.1,
-        "NUMBER_OF_LOOPS": 2,
+        "NUMBER_OF_LOOPS": 1,
         "CURVE_PARAMETER":{
             "initial_value": 0.2,
-            "max_value": 0.3,
-            "min_value": -0.3
+            "max_value": 1.2,
+            "min_value": -0.1
         }
     }
 }

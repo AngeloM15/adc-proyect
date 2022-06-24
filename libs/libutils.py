@@ -16,10 +16,10 @@ class Libutils:
         try:
             # write
             response = self.channel.update({'field1': adc, 'field2': dac})
-
+            log.info(f"Send ---> field1: {adc}, field2: {dac}")
             # read
             read = self.channel.get({})
-            log.info(f"Read: {read}")
+            log.debug(f"Read: {read}")
 
         except Exception as e:
             log.info(e)

@@ -32,7 +32,7 @@ class Libdata():
         Set data in JSON format
         """
         json_data ={
-            "device": "xxxx",
+            "device": "RodStat-bb663b",
             "timestamp": data[0],
             "sensors":{
                 "DAC": data[1],
@@ -40,7 +40,7 @@ class Libdata():
             }
         }
         self.json_data = json_data
-        log.info(f"Data: {self.json_data}")
+        log.debug(f"Data: {self.json_data}")
         
 
 
@@ -57,10 +57,10 @@ class Libdata():
     def clear_data(self, filename):
         open(filename, 'w').close()
 
-    def plot_data(self, filename):
-        print(filename)
+    def read_data(self, filename):
+        
+        # Read lines in JSON format
         df = pd.read_json(filename, orient='records', lines=True)
-
         # Separate sensors column for each key in dictionary
         df = pd.concat([df.drop(['sensors'],axis = 1),pd.json_normalize(df['sensors'])],axis = 1)
         # Define datetime
@@ -68,7 +68,11 @@ class Libdata():
         # Datetime as index
         df = df.set_index('DateTime').drop(["timestamp",],axis = 1)
 
-        print(df)
+        self.signal_df = df
+
+    def plot_data(self):
+
+        df = self.signal_df
         # Plot data
         sns.set(style="darkgrid", context = "paper", rc={'figure.figsize':(10,8)})
         fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
@@ -122,7 +126,7 @@ class Libconversor(Libdata):
     def get_adc(self):
         vol_in = self.chan0.voltage
         amp_in = (vol_in-1.71)*1000/(8.2*1000)
-        log.info(f"voltage: {round(vol_in,2)}V / current: {round(amp_in,2)}")
+        log.debug(f"voltage: {round(vol_in,2)}V / current: {round(amp_in,2)}A")
         return round(amp_in,2)
         # return np.random.normal()
 
@@ -139,7 +143,6 @@ class Libconversor(Libdata):
         self.save_data(self.temporal_file_name)
 
         time_to_wait = self.step/self.scan_rate
-        print()
         time.sleep(time_to_wait)
 
     def generate_signal(self):
@@ -166,6 +169,7 @@ class Libconversor(Libdata):
             if (count == 3) and (value ==initial_value):
                 count = 1
                 n_loop += 1
+                log.info(f"Loop number {n_loop}...")
                 # print(f"loop number {n_loop}")
             elif up:
                 value = round(value + step,2)
