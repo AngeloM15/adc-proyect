@@ -21,7 +21,7 @@
                 "offset":0.005,
                 "duty_cycle":0.5,
                 "initial_value": 0,
-                "final_value": 0.5
+                "final_value": -0.5
             }
         }
     }

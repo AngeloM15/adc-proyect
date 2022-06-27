@@ -148,10 +148,7 @@ class Libconversor(Libdata):
 
     def get_adc(self):
         vol_in = self.chan0.voltage
-        if self.wave_type == "triangular":
-            amp_in = (vol_in-1.71)*1000/(8.2*1000)
-        elif self.wave_type == "square":
-            amp_in = (vol_in-1.71)*1000/(8.2)
+        amp_in = (vol_in-1.71)*1000/(8.2)
 
         log.debug(f"voltage: {round(vol_in,2)}V / current: {round(amp_in,2)}A")
         return round(amp_in,2)
@@ -237,7 +234,7 @@ class Libconversor(Libdata):
         final_value = self.final_value
 
         while True:
-            if (-amplitude-step) >=final_value:
+            if (-amplitude-step) <=final_value:
                 break
 
             if up:
