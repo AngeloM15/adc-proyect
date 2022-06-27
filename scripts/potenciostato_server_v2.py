@@ -80,8 +80,9 @@ def main():
 
         # Plot data
         libconversor.load_data(libconversor.temporal_file_name)
-
+        log.info(f"\n{libconversor.signal_df}")
         df = libconversor.signal_df.iloc[::2]
+        log.info(f"\n{df}")
 
         # Plot data
         sns.set(style="darkgrid", context = "paper", rc={'figure.figsize':(10,8)})

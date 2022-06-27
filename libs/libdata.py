@@ -226,12 +226,15 @@ class Libconversor(Libdata):
         n_loop = 0
         step = 0
         period = 1/self.frequency
-        p_sample = period/2
+        number_of_points = 6
+        p_sample = period/number_of_points
         up = True
         down = False
         amplitude = self.amplitude
         initial_value = self.initial_value
         final_value = self.final_value
+        counter = 0
+        point_per_state = number_of_points/2
 
         while True:
             if (-amplitude-step) <=final_value:
@@ -239,13 +242,19 @@ class Libconversor(Libdata):
 
             if up:
                 self.process_data(initial_value-step,p_sample)
-                up = False
-                down = True
-
+                counter += 1
+                if counter == point_per_state:
+                    up = False
+                    down = True
+                    counter = 0
+                
             elif down:
                 self.process_data(-amplitude-step,p_sample)
-                up = True
-                down = False
-                step += self.offset
-                n_loop += 1
-                print(f"Loop number {n_loop}...")
+                counter += 1
+                if counter == point_per_state:
+                    up = True
+                    down = False
+                    counter = 0
+                    step += self.offset
+                    n_loop += 1
+                    print(f"Loop number {n_loop}...")
