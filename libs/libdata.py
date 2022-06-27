@@ -237,7 +237,7 @@ class Libconversor(Libdata):
                     print(counter)
 
             elif down:
-                self.process_data(min_value+step,p_sample)
+                # self.process_data(min_value+step,p_sample)
                 counter += 1
                 if counter == int(total_counter*(1-duty)):
                     up = True
