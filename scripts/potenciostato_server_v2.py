@@ -2,7 +2,6 @@ import os
 import sys
 import argparse
 import logging
-import asyncio
 import traceback
 import json
 import time
@@ -69,10 +68,12 @@ def main():
         libconversor.clear_data(libconversor.temporal_file_name)
 
         # Generate wave signal
-        libconversor.generate_signal()
+        # libconversor.triangular_wave()
+        libconversor.square_wave()
+        
 
         # Plot data
-        libconversor.read_data(libconversor.temporal_file_name)
+        libconversor.load_data(libconversor.temporal_file_name)
         libconversor.plot_data()
 
         # Send data

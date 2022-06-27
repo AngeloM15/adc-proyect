@@ -74,7 +74,7 @@ async def main(loop):
         if potenciotato_mode:
 
             # Generate signal
-            libconversor.generate_signal()
+            libconversor.triangular_wave()
 
             # Plot data
             libconversor.plot_data(libconversor.temporal_file_name)

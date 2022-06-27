@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import logging
 import time
@@ -41,7 +40,6 @@ class Libdata():
         }
         self.json_data = json_data
         log.debug(f"Data: {self.json_data}")
-        
 
 
     def save_data(self,filename):
@@ -57,7 +55,7 @@ class Libdata():
     def clear_data(self, filename):
         open(filename, 'w').close()
 
-    def read_data(self, filename):
+    def load_data(self, filename):
         
         # Read lines in JSON format
         df = pd.read_json(filename, orient='records', lines=True)
@@ -120,7 +118,7 @@ class Libconversor(Libdata):
     def send_dac(self, data):
 
         data_rescaled = (5/3)*(1.5-data)
-        # self.dac.normalized_value = data_rescaled/5.18
+        # self.dac.normalized_value = data_rescaled/5.2535
         # log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.18}")
 
     def get_adc(self):
@@ -145,7 +143,7 @@ class Libconversor(Libdata):
         time_to_wait = self.step/self.scan_rate
         time.sleep(time_to_wait)
 
-    def generate_signal(self):
+    def triangular_wave(self):
         """
         Triangular curve generation using JSON parameters
         """
@@ -192,3 +190,44 @@ class Libconversor(Libdata):
                     down = False
                     count += 1
                     # print(count)
+
+    def square_wave(self):
+
+        counter = 0
+        n_loop = 0
+        step = 0
+        duty_cycle = 0.5
+        total_counter = 85
+        log.info()
+
+        up = True
+        down = False
+        max_loop = self.n_period
+        max_value = 0.07
+        min_value = 0
+
+        # value = round(initial_value,2)
+        # self.process_data(value)
+        self.clear_data("square.csv")
+        while True:
+            if n_loop == max_loop:
+                break
+
+            if up:
+                self.process_data(max_value+step)
+                counter += 1
+                if counter == total_counter*duty_cycle:
+                    up = False
+                    down = True
+                    counter = 0
+
+            elif down:
+                self.process_data(min_value+step)
+                counter += 1
+                if counter == total_counter*(1-duty_cycle):
+                    up = True
+                    down = False
+                    counter = 0
+                    step += self.step
+                    n_loop += 1
+                    print(f"Loop number {n_loop}...")
