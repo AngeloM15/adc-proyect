@@ -118,8 +118,8 @@ class Libconversor(Libdata):
     def send_dac(self, data):
 
         data_rescaled = (5/3)*(1.5-data)
-        # self.dac.normalized_value = data_rescaled/5.2535
-        # log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.18}")
+        self.dac.normalized_value = data_rescaled/5.2535
+        log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.2535}")
 
     def get_adc(self):
         vol_in = self.chan0.voltage
@@ -206,9 +206,6 @@ class Libconversor(Libdata):
         max_value = 0.07
         min_value = 0
 
-        # value = round(initial_value,2)
-        # self.process_data(value)
-        self.clear_data("square.csv")
         while True:
             if n_loop == max_loop:
                 break
