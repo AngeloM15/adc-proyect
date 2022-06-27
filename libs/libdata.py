@@ -101,12 +101,13 @@ class Libconversor(Libdata):
             dac_param = dac_dict["TRIANGULAR"]
             self.scan_rate = dac_param["SCAN_RATE"]
             self.step = dac_param["STEP"]
-            
+
             self.n_period = dac_param["NUMBER_OF_LOOPS"]
             self.initial_value = dac_param["CURVE_PARAMETER"]["initial_value"]
             self.max_value = dac_param["CURVE_PARAMETER"]["max_value"]
             self.min_value = dac_param["CURVE_PARAMETER"]["min_value"]
         elif dac_dict["SQUARE"]["ENABLE"]:
+            log.info("**************** Square wave generation ****************")
             dac_param = dac_dict["SQUARE"]
             self.freq_sample = dac_param["FREQ_SAMPLE"]
             self.n_loop = dac_param["NUMBER_OF_LOOPS"]
@@ -129,7 +130,7 @@ class Libconversor(Libdata):
 
         data_rescaled = (5/3)*(1.5-data)
         self.dac.normalized_value = data_rescaled/5.2535
-        log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.2535}")
+        #log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.2535}")
 
     def get_adc(self):
         vol_in = self.chan0.voltage
@@ -211,7 +212,7 @@ class Libconversor(Libdata):
         duty = self.duty_cycle
         p_sample = 1/self.freq_sample
         total_counter = int(self.freq_sample/self.frequency)
-        log.info()
+        log.info(f"{total_counter}")
 
         up = True
         down = False
@@ -230,6 +231,7 @@ class Libconversor(Libdata):
                     up = False
                     down = True
                     counter = 0
+                    print(counter)
 
             elif down:
                 self.process_data(min_value+step,p_sample)
