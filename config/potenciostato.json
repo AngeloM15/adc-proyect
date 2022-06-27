@@ -14,14 +14,14 @@
         },
         "SQUARE":{
             "ENABLE":1,
-            "FREQ_SAMPLE": 600,
-            "NUMBER_OF_LOOPS": 1,
 
             "CURVE_PARAMETER":{
                 "frequency": 85,
                 "amplitude": 0.07,
-                "offset":0.05,
-                "duty_cycle":0.5
+                "offset":0.005,
+                "duty_cycle":0.5,
+                "initial_value": 0,
+                "final_value": 0.5
             }
         }
     }

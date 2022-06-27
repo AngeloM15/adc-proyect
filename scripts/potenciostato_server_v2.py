@@ -39,7 +39,7 @@ def main():
 
     # Set API
     libutils.set_channel(sender_config["CHANNEL_ID"],sender_config["WRITE_KEY"])
-    
+
     # Set conversors
     libconversor.set_dac(potenciotato_config["DAC"])
     libconversor.set_adc()
@@ -68,8 +68,10 @@ def main():
         libconversor.clear_data(libconversor.temporal_file_name)
 
         # Generate wave signal
-        # libconversor.triangular_wave()
-        libconversor.square_wave()
+        if libconversor.wave_type == "triangular":
+            libconversor.triangular_wave()
+        elif libconversor.wave_type == "square":
+            libconversor.square_wave()
         
 
         # Plot data

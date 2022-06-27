@@ -1,3 +1,4 @@
+from mimetypes import init
 import pandas as pd
 import logging
 import time
@@ -97,8 +98,11 @@ class Libconversor(Libdata):
         # Initialize MCP4725.
         self.dac = adafruit_mcp4725.MCP4725(self.i2c)
         # amp = adafruit_max9744.MAX9744(self.i2c, address=0x60)
+        log.info("============================================================")
+
         if dac_dict["TRIANGULAR"]["ENABLE"]:
             dac_param = dac_dict["TRIANGULAR"]
+            self.wave_type= "triangular"
             self.scan_rate = dac_param["SCAN_RATE"]
             self.step = dac_param["STEP"]
 
@@ -106,17 +110,26 @@ class Libconversor(Libdata):
             self.initial_value = dac_param["CURVE_PARAMETER"]["initial_value"]
             self.max_value = dac_param["CURVE_PARAMETER"]["max_value"]
             self.min_value = dac_param["CURVE_PARAMETER"]["min_value"]
+
         elif dac_dict["SQUARE"]["ENABLE"]:
             log.info("**************** Square wave generation ****************")
-            dac_param = dac_dict["SQUARE"]
-            self.freq_sample = dac_param["FREQ_SAMPLE"]
-            self.n_loop = dac_param["NUMBER_OF_LOOPS"]
-            self.frequency = dac_param["CURVE_PARAMETER"]["frequency"]
-            self.amplitude = dac_param["CURVE_PARAMETER"]["amplitude"]
-            self.offset = dac_param["CURVE_PARAMETER"]["offset"]
-            self.duty_cycle = dac_param["CURVE_PARAMETER"]["duty_cycle"]
-            log.info(f"Sample frequency ---> {self.freq_sample}")
+            dac_param = dac_dict["SQUARE"]["CURVE_PARAMETER"]
+            self.wave_type= "square"
+            self.frequency = dac_param["frequency"]
+            self.amplitude = dac_param["amplitude"]
+            self.offset = dac_param["offset"]
+            self.duty_cycle = dac_param["duty_cycle"]
+            self.initial_value = dac_param["initial_value"]
+            self.final_value = dac_param["final_value"]
+            
+            log.info(f"frequency ---> {self.frequency}")
+            log.info(f"amplitude ---> {self.amplitude}")
+            log.info(f"offset ---> {self.offset}")
+            log.info(f"initial value ---> {self.initial_value}")
+            log.info(f"final value ---> {self.final_value}")
 
+
+        log.info("============================================================")
 
     def set_adc(self):
         # Create the ADC object using the I2C bus
@@ -135,7 +148,11 @@ class Libconversor(Libdata):
 
     def get_adc(self):
         vol_in = self.chan0.voltage
-        amp_in = (vol_in-1.71)*1000/(8.2*1000)
+        if self.wave_type == "triangular":
+            amp_in = (vol_in-1.71)*1000/(8.2*1000)
+        elif self.wave_type == "square":
+            amp_in = (vol_in-1.71)*1000/(8.2)
+
         log.debug(f"voltage: {round(vol_in,2)}V / current: {round(amp_in,2)}A")
         return round(amp_in,2)
         # return np.random.normal()
@@ -207,42 +224,31 @@ class Libconversor(Libdata):
 
     def square_wave(self):
 
-        counter = 0
+        duty = self.duty_cycle
+
         n_loop = 0
         step = 0
-        duty = self.duty_cycle
-        p_sample = 1/self.freq_sample
-        total_counter = int(self.freq_sample/self.frequency)
-        log.info(f"{total_counter}")
-        log.info(f"Period sample ---> {p_sample}")
-        
-
+        period = 1/self.frequency
+        p_sample = period/2
         up = True
         down = False
-        max_loop = self.n_loop
-        max_value = self.amplitude
-        min_value = 0
-        
+        amplitude = self.amplitude
+        initial_value = self.initial_value
+        final_value = self.final_value
+
         while True:
-            if n_loop == max_loop:
+            if (-amplitude-step) >=final_value:
                 break
 
             if up:
-                self.process_data(max_value+step,p_sample)
-                counter += 1
-                if counter == int(total_counter*duty):
-                    up = False
-                    down = True
-                    counter = 0
-                    print(counter)
+                self.process_data(initial_value-step,p_sample)
+                up = False
+                down = True
 
             elif down:
-                # self.process_data(min_value+step,p_sample)
-                counter += 1
-                if counter == int(total_counter*(1-duty)):
-                    up = True
-                    down = False
-                    counter = 0
-                    step += self.offset
-                    n_loop += 1
-                    print(f"Loop number {n_loop}...")
+                self.process_data(-amplitude-step,p_sample)
+                up = True
+                down = False
+                step += self.offset
+                n_loop += 1
+                print(f"Loop number {n_loop}...")
