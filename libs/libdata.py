@@ -115,6 +115,7 @@ class Libconversor(Libdata):
             self.amplitude = dac_param["CURVE_PARAMETER"]["amplitude"]
             self.offset = dac_param["CURVE_PARAMETER"]["offset"]
             self.duty_cycle = dac_param["CURVE_PARAMETER"]["duty_cycle"]
+            log.info(f"Sample frequency ---> {self.freq_sample}")
 
 
     def set_adc(self):
@@ -213,6 +214,8 @@ class Libconversor(Libdata):
         p_sample = 1/self.freq_sample
         total_counter = int(self.freq_sample/self.frequency)
         log.info(f"{total_counter}")
+        log.info(f"Period sample ---> {p_sample}")
+        
 
         up = True
         down = False
@@ -227,7 +230,7 @@ class Libconversor(Libdata):
             if up:
                 self.process_data(max_value+step,p_sample)
                 counter += 1
-                if counter == total_counter*duty:
+                if counter == int(total_counter*duty):
                     up = False
                     down = True
                     counter = 0
@@ -236,7 +239,7 @@ class Libconversor(Libdata):
             elif down:
                 self.process_data(min_value+step,p_sample)
                 counter += 1
-                if counter == total_counter*(1-duty):
+                if counter == int(total_counter*(1-duty)):
                     up = True
                     down = False
                     counter = 0
