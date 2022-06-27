@@ -90,7 +90,7 @@ class Square():
         n_loop = 0
         step = 0
         duty_cycle = 0.5
-        total_counter = 200
+        total_counter = (1/85)*(2/self.step)
 
         up = True
         down = False
