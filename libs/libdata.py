@@ -115,6 +115,7 @@ class Libconversor(Libdata):
             log.info("**************** Square wave generation ****************")
             dac_param = dac_dict["SQUARE"]["CURVE_PARAMETER"]
             self.wave_type= "square"
+            self.freq_sample = dac_param["freq_sample"]
             self.frequency = dac_param["frequency"]
             self.amplitude = dac_param["amplitude"]
             self.offset = dac_param["offset"]
@@ -258,3 +259,45 @@ class Libconversor(Libdata):
                     step += self.offset
                     n_loop += 1
                     print(f"Loop number {n_loop}...")
+
+    def square_wave_v2(self):
+
+        duty = self.duty_cycle
+
+        n_loop = 0
+        step = 0
+        freq = self.frequency
+        freq_sample = self.freq_sample
+
+        up = True
+        down = False
+        amplitude = self.amplitude
+        initial_value = self.initial_value
+        final_value = self.final_value
+        counter = 0
+        point_per_loop = freq_sample/freq
+        log.info(f"Points per loop: {int(point_per_loop)}")
+
+        while True:
+            if (-amplitude-step) <=final_value:
+                break
+
+            if up:
+                self.process_data(initial_value-step,1/freq_sample)
+                counter += 1
+                if counter == int(point_per_loop/2):
+                    up = False
+                    down = True
+                    counter = 0
+                
+            elif down:
+                self.process_data(-amplitude-step,1/freq_sample)
+                counter += 1
+                if counter == point_per_loop-int(point_per_loop/2):
+                    up = True
+                    down = False
+                    counter = 0
+                    step += self.offset
+                    n_loop += 1
+                    log.info(f"Loop number {n_loop}...")
+

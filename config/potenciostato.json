@@ -14,8 +14,8 @@
         },
         "SQUARE":{
             "ENABLE":1,
-
             "CURVE_PARAMETER":{
+                "freq_sample":850,
                 "frequency": 85,
                 "amplitude": 0.07,
                 "offset":0.005,
