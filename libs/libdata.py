@@ -1,4 +1,3 @@
-from mimetypes import init
 import pandas as pd
 import logging
 import time
@@ -69,6 +68,15 @@ class Libdata():
 
         self.signal_df = df
 
+    def filter_data(self,df,symbol):
+
+        df.drop_duplicates(subset = ["DAC"],inplace = True)
+
+        if symbol == "positive":
+            return df.loc[df["ADC"]>0]
+        elif symbol == "negative":
+            return df.loc[df["ADC"]<0]
+
     def plot_data(self):
 
         df = self.signal_df
@@ -78,6 +86,8 @@ class Libdata():
 
         sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
         sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
+        sns.lineplot(data = self.filter_data(df,"positive"), x = df.index, y = "ADC", ax = ax2)
+        sns.lineplot(data = self.filter_data(df,"negative"), x = df.index, y = "ADC", ax = ax2)
 
         plt.tight_layout()
         plt.show()
