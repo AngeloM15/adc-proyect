@@ -78,6 +78,8 @@ class Libdata():
 
         elif symbol == "negative":
             df_filter = df.loc[df["ADC"]<0]
+            bla = df.iloc[0,:].to_frame().T.set_index("DateTime")
+            log.info(f"{bla}")
             df_filter = pd.concat([df.iloc[0,:].to_frame().T.set_index("DateTime"), df_filter])
             log.info(f"filter table:\n{df_filter}")
             return df_filter
