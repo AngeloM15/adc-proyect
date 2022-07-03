@@ -158,17 +158,19 @@ class Libconversor(Libdata):
         return round(amp_in,2)
         # return np.random.normal()
 
-    def process_data(self,dac_value,time_to_wait):
+    def process_data(self,dac_value,counter,time_to_wait):
 
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")[:-3]
 
         # Send and receive signal
         self.send_dac(dac_value)
-        adc_value = self.get_adc()
+        if counter == 0 or counter == (int(self.point_per_loop/2)-1):
+            log.info(f"counter: {counter}")
+            adc_value = self.get_adc()
 
-        self.save_json([ts,dac_value,adc_value])
-        self.save_data(self.total_file_name)
-        self.save_data(self.temporal_file_name)
+            self.save_json([ts,dac_value,adc_value])
+            self.save_data(self.total_file_name)
+            self.save_data(self.temporal_file_name)
 
         # time_to_wait = self.step/self.scan_rate
         time.sleep(time_to_wait)
@@ -238,29 +240,25 @@ class Libconversor(Libdata):
         initial_value = self.initial_value
         final_value = self.final_value
         counter = 0
-        point_per_loop = freq_sample/freq
-        log.info(f"Points per loop: {int(point_per_loop)}")
+        self.point_per_loop = freq_sample/freq
+        log.info(f"Points per loop: {int(self.point_per_loop)}")
 
         while True:
             if (-amplitude-step) <=final_value:
                 break
 
             if up:
-                if counter == 0 or counter == (int(point_per_loop/2)-1):
-                    log.info(f"counter: {counter}")
-                    self.process_data(initial_value-step,1/freq_sample)
+                self.process_data(initial_value-step,counter,1/freq_sample)
                 counter += 1
-                if counter == int(point_per_loop/2):
+                if counter == int(self.point_per_loop/2):
                     up = False
                     down = True
                     counter = 0
                 
             elif down:
-                if counter == 0 or counter == (int(point_per_loop/2)-1):
-                    log.info(f"counter: {counter}")
-                    self.process_data(-amplitude-step,1/freq_sample)
+                self.process_data(-amplitude-step,counter,1/freq_sample)
                 counter += 1
-                if counter == point_per_loop-int(point_per_loop/2):
+                if counter == self.point_per_loop-int(self.point_per_loop/2):
                     up = True
                     down = False
                     counter = 0
