@@ -86,13 +86,17 @@ class Libdata():
 
         sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
         sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
-        sns.lineplot(data = self.filter_data(df,"positive"), x = df.index, y = "ADC", ax = ax2)
-        sns.lineplot(data = self.filter_data(df,"negative"), x = df.index, y = "ADC", ax = ax2)
-
+        df_to_plot = self.filter_data(df,"positive")
+        sns.lineplot(data = df_to_plot, x = df_to_plot.index, y = "ADC", ax = ax2)
+        df_to_plot = self.filter_data(df,"negative")
+        sns.lineplot(data = df_to_plot, x = df_to_plot.index, y = "ADC", ax = ax2)
         plt.tight_layout()
         plt.show()
 
-        sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+        df_to_plot = self.filter_data(df,"positive")
+        sns.lineplot(data = df_to_plot, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+        df_to_plot = self.filter_data(df,"negative")
+        sns.lineplot(data = df_to_plot, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
         plt.tight_layout()
         plt.show()
 
