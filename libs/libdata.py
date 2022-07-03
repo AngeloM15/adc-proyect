@@ -158,13 +158,13 @@ class Libconversor(Libdata):
         return round(amp_in,2)
         # return np.random.normal()
 
-    def process_data(self,dac_value,counter,time_to_wait):
+    def process_data(self,dac_value,counter,time_to_wait,up):
 
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")[:-3]
 
         # Send and receive signal
         self.send_dac(dac_value)
-        if counter == 0 or counter == (int(self.point_per_loop/2)-1):
+        if (counter == (int(self.point_per_loop/2)-1)) and up:
             log.info(f"counter: {counter}")
             adc_value = self.get_adc()
 
@@ -248,7 +248,7 @@ class Libconversor(Libdata):
                 break
 
             if up:
-                self.process_data(initial_value-step,counter,1/freq_sample)
+                self.process_data(initial_value-step,counter,1/freq_sample,up)
                 counter += 1
                 if counter == int(self.point_per_loop/2):
                     up = False
@@ -256,7 +256,7 @@ class Libconversor(Libdata):
                     counter = 0
                 
             elif down:
-                self.process_data(-amplitude-step,counter,1/freq_sample)
+                self.process_data(-amplitude-step,counter,1/freq_sample,up)
                 counter += 1
                 if counter == self.point_per_loop-int(self.point_per_loop/2):
                     up = True
