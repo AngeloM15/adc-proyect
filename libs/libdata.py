@@ -141,18 +141,18 @@ class Libconversor(Libdata):
         if self.wave_type == "triangular":
             self.ads.mode = Mode.CONTINUOUS
         elif self.wave_type == "square":
-            self.ads.mode = Mode.single
+            self.ads.mode = Mode.SINGLE
             self.ads.data_rate = 860
 
     def send_dac(self, data):
 
-        data_rescaled = (5/3)*(1.5-data)
+        data_rescaled = (5/3)*(1.58-data)
         self.dac.normalized_value = data_rescaled/5.2535
         #log.info(f"Send to DAC ---> {data}V / {data_rescaled}V / {data_rescaled/5.2535}")
 
     def get_adc(self):
         vol_in = self.chan0.voltage
-        amp_in = (vol_in-1.71)*1000/(8.2)
+        amp_in = (vol_in-1.71)*1000/(8.2)-2.1
 
         log.debug(f"voltage: {round(vol_in,2)}V / current: {round(amp_in,2)}A")
         return round(amp_in,2)
@@ -246,7 +246,7 @@ class Libconversor(Libdata):
                 break
 
             if up:
-                if counter == (int(point_per_loop/2)-1):
+                if counter == 0 or counter == (int(point_per_loop/2)-1):
                     self.process_data(initial_value-step,1/freq_sample)
                 counter += 1
                 if counter == int(point_per_loop/2):
@@ -255,7 +255,7 @@ class Libconversor(Libdata):
                     counter = 0
                 
             elif down:
-                if counter == (int(point_per_loop/2)-1):
+                if counter == 0 or counter == (int(point_per_loop/2)-1):
                     self.process_data(-amplitude-step,1/freq_sample)
                 counter += 1
                 if counter == point_per_loop-int(point_per_loop/2):
