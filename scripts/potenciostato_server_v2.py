@@ -80,23 +80,24 @@ def main():
 
         # Plot data
         libconversor.load_data(libconversor.temporal_file_name)
-        log.info(f"\n{libconversor.signal_df}")
-        df = libconversor.signal_df.iloc[::2]
-        log.info(f"\n{df}")
+        log.info(f"table:\n{libconversor.signal_df}")
+        libconversor.plot_data()
+        # df = libconversor.signal_df.iloc[::2]
+        # log.info(f"\n{df}")
 
-        # Plot data
-        sns.set(style="darkgrid", context = "paper", rc={'figure.figsize':(10,8)})
-        fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+        # # Plot data
+        # sns.set(style="darkgrid", context = "paper", rc={'figure.figsize':(10,8)})
+        # fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 
-        sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
-        sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
+        # sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
+        # sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
 
-        plt.tight_layout()
-        plt.show()
+        # plt.tight_layout()
+        # plt.show()
 
-        sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
-        plt.tight_layout()
-        plt.show()
+        # sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+        # plt.tight_layout()
+        # plt.show()
 
         # Send data
         for i,row in libconversor.signal_df.iterrows():
