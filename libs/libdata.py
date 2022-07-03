@@ -1,3 +1,4 @@
+from re import T
 import pandas as pd
 import logging
 import time
@@ -84,7 +85,7 @@ class Libdata():
             log.info(f"filter table:\n{df_filter}")
             return df_filter
 
-    def plot_data(self):
+    def plot_data(self,type_wave):
 
         df = self.signal_df
         df_positive = self.filter_data(df,"positive")
@@ -97,16 +98,21 @@ class Libdata():
         sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
         sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
         
-        sns.lineplot(data = df_positive, x = df_positive.index, y = "ADC", ax = ax2)
-        sns.lineplot(data = df_negative, x = df_negative.index, y = "ADC", ax = ax2)
-        plt.tight_layout()
-        plt.show()
+        if type_wave == "triangular":
+            sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+            plt.tight_layout()
+            plt.show()
 
-        sns.lineplot(data = df_positive, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
-        df_to_plot = self.filter_data(df,"negative")
-        sns.lineplot(data = df_negative, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
-        plt.tight_layout()
-        plt.show()
+        if type_wave == "square":
+            sns.lineplot(data = df_positive, x = df_positive.index, y = "ADC", ax = ax2)
+            sns.lineplot(data = df_negative, x = df_negative.index, y = "ADC", ax = ax2)
+            plt.tight_layout()
+            plt.show()
+
+            sns.lineplot(data = df_positive, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+            sns.lineplot(data = df_negative, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+            plt.tight_layout()
+            plt.show()
 
 class Libconversor(Libdata):
     def __init__(self):
