@@ -89,17 +89,15 @@ class Libdata():
     def plot_data(self,type_wave):
 
         df = self.signal_df
-        df_positive = self.filter_data("positive")
-        df_negative = self.filter_data("negative")
 
         # Plot data
         sns.set(style="darkgrid", context = "paper", rc={'figure.figsize':(10,8)})
         fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 
-        sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
-        sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
         
         if type_wave == "triangular":
+            sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
+            sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
             plt.tight_layout()
             plt.show()
 
@@ -108,6 +106,11 @@ class Libdata():
             plt.show()
 
         if type_wave == "square":
+
+            df_positive = self.filter_data("positive")
+            df_negative = self.filter_data("negative")
+            sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
+            sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
             sns.lineplot(data = df_positive, x = df_positive.index, y = "ADC", ax = ax2)
             sns.lineplot(data = df_negative, x = df_negative.index, y = "ADC", ax = ax2)
             plt.tight_layout()
