@@ -99,6 +99,9 @@ class Libdata():
         sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
         
         if type_wave == "triangular":
+            plt.tight_layout()
+            plt.show()
+
             sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
             plt.tight_layout()
             plt.show()
