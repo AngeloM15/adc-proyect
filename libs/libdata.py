@@ -69,22 +69,22 @@ class Libdata():
 
         self.signal_df = df
 
-    def filter_data(self,symbol):
+    def filter_data(self,df_to_filter,symbol):
 
-        df = self.signal_df
-        df.drop_duplicates(subset = ["DAC"], inplace = True)
+        df_to_filter = df_to_filter.copy()
+        df_to_filter.drop_duplicates(subset = ["DAC"], inplace = True)
         if symbol == "positive":
-            df_filter = df.loc[df["ADC"]>0]
-            log.info(f"filter table:\n{df_filter}")
-            return df_filter
+            df_filtered = df_to_filter.loc[df_to_filter["ADC"]>0]
+            log.info(f"filter table:\n{df_filtered}")
+            return df_filtered
 
         elif symbol == "negative":
-            df_filter = df.loc[df["ADC"]<0]
-            s = df.iloc[0,:].to_frame().T
+            df_filtered = df_to_filter.loc[df_to_filter["ADC"]<0]
+            s = df_to_filter.iloc[0,:].to_frame().T
             log.info(f"{s}")
-            df_filter = pd.concat([s, df_filter])
-            log.info(f"filter table:\n{df_filter}")
-            return df_filter
+            df_filtered = pd.concat([s, df_filtered])
+            log.info(f"filter table:\n{df_filtered}")
+            return df_filtered
 
     def plot_data(self,type_wave):
 
@@ -107,8 +107,8 @@ class Libdata():
 
         if type_wave == "square":
 
-            df_positive = self.filter_data("positive")
-            df_negative = self.filter_data("negative")
+            df_positive = self.filter_data(df,"positive")
+            df_negative = self.filter_data(df,"negative")
             sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
             sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
             sns.lineplot(data = df_positive, x = df_positive.index, y = "ADC", ax = ax2)
