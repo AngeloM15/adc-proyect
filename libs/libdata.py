@@ -70,33 +70,39 @@ class Libdata():
 
     def filter_data(self,df,symbol):
 
-        df_filter = df.drop_duplicates(subset = ["DAC"])
-        log.info(f"filter table:\n{df_filter}")
+        df.drop_duplicates(subset = ["DAC"], inplace = True)
         if symbol == "positive":
-            return df_filter.loc[df_filter["ADC"]>0]
+            df_filter = df.loc[df["ADC"]>0]
+            log.info(f"filter table:\n{df_filter}")
+            return df_filter
+
         elif symbol == "negative":
-            return df_filter.loc[df_filter["ADC"]<0]
+            df_filter = df.loc[df["ADC"]<0]
+            df_filter = pd.concat([df.iloc[0,:], df_filter])
+            log.info(f"filter table:\n{df_filter}")
+            return df_filter
 
     def plot_data(self):
 
         df = self.signal_df
+        df_positive = self.filter_data(df,"positive")
+        df_negative = self.filter_data(df,"negative")
+        
         # Plot data
         sns.set(style="darkgrid", context = "paper", rc={'figure.figsize':(10,8)})
         fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 
         sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
         sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
-        df_to_plot = self.filter_data(df,"positive")
-        sns.lineplot(data = df_to_plot, x = df_to_plot.index, y = "ADC", ax = ax2)
-        df_to_plot = self.filter_data(df,"negative")
-        sns.lineplot(data = df_to_plot, x = df_to_plot.index, y = "ADC", ax = ax2)
+        
+        sns.lineplot(data = df_positive, x = df_positive.index, y = "ADC", ax = ax2)
+        sns.lineplot(data = df_negative, x = df_negative.index, y = "ADC", ax = ax2)
         plt.tight_layout()
         plt.show()
 
-        df_to_plot = self.filter_data(df,"positive")
-        sns.lineplot(data = df_to_plot, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+        sns.lineplot(data = df_positive, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
         df_to_plot = self.filter_data(df,"negative")
-        sns.lineplot(data = df_to_plot, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+        sns.lineplot(data = df_negative, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
         plt.tight_layout()
         plt.show()
 
