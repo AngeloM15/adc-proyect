@@ -247,6 +247,7 @@ class Libconversor(Libdata):
 
             if up:
                 if counter == 0 or counter == (int(point_per_loop/2)-1):
+                    log.info(f"counter: {counter}")
                     self.process_data(initial_value-step,1/freq_sample)
                 counter += 1
                 if counter == int(point_per_loop/2):
@@ -256,6 +257,7 @@ class Libconversor(Libdata):
                 
             elif down:
                 if counter == 0 or counter == (int(point_per_loop/2)-1):
+                    log.info(f"counter: {counter}")
                     self.process_data(-amplitude-step,1/freq_sample)
                 counter += 1
                 if counter == point_per_loop-int(point_per_loop/2):
