@@ -138,8 +138,11 @@ class Libconversor(Libdata):
         # Create single-ended input on channel 0
         self.chan0 = AnalogIn(self.ads, ADS.P0)
         # ADC Configuration
-        self.ads.mode = Mode.CONTINUOUS
-        # self.ads.data_rate = 16
+        if self.wave_type == "triangular":
+            self.ads.mode = Mode.CONTINUOUS
+        elif self.wave_type == "square":
+            self.ads.mode = Mode.single
+            self.ads.data_rate = 860
 
     def send_dac(self, data):
 
@@ -220,46 +223,6 @@ class Libconversor(Libdata):
                     count += 1
                     # print(count)
 
-    def square_wave(self):
-
-        duty = self.duty_cycle
-
-        n_loop = 0
-        step = 0
-        period = 1/self.frequency
-        number_of_points = 6
-        p_sample = period/number_of_points
-        up = True
-        down = False
-        amplitude = self.amplitude
-        initial_value = self.initial_value
-        final_value = self.final_value
-        counter = 0
-        point_per_state = number_of_points/2
-
-        while True:
-            if (-amplitude-step) <=final_value:
-                break
-
-            if up:
-                self.process_data(initial_value-step,p_sample)
-                counter += 1
-                if counter == point_per_state:
-                    up = False
-                    down = True
-                    counter = 0
-                
-            elif down:
-                self.process_data(-amplitude-step,p_sample)
-                counter += 1
-                if counter == point_per_state:
-                    up = True
-                    down = False
-                    counter = 0
-                    step += self.offset
-                    n_loop += 1
-                    print(f"Loop number {n_loop}...")
-
     def square_wave_v2(self):
 
         duty = self.duty_cycle
@@ -283,7 +246,8 @@ class Libconversor(Libdata):
                 break
 
             if up:
-                self.process_data(initial_value-step,1/freq_sample)
+                if counter == (int(point_per_loop/2)-1):
+                    self.process_data(initial_value-step,1/freq_sample)
                 counter += 1
                 if counter == int(point_per_loop/2):
                     up = False
@@ -291,7 +255,8 @@ class Libconversor(Libdata):
                     counter = 0
                 
             elif down:
-                self.process_data(-amplitude-step,1/freq_sample)
+                if counter == (int(point_per_loop/2)-1):
+                    self.process_data(-amplitude-step,1/freq_sample)
                 counter += 1
                 if counter == point_per_loop-int(point_per_loop/2):
                     up = True
