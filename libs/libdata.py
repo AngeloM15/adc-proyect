@@ -158,19 +158,17 @@ class Libconversor(Libdata):
         return round(amp_in,2)
         # return np.random.normal()
 
-    def process_data(self,dac_value,counter,time_to_wait,up):
+    def process_data(self,dac_value,time_to_wait):
 
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")[:-3]
 
         # Send and receive signal
         self.send_dac(dac_value)
-        if (counter == (int(self.point_per_loop/2)-1)) and up:
-            log.info(f"counter: {counter}")
-            adc_value = self.get_adc()
+        adc_value = self.get_adc()
 
-            self.save_json([ts,dac_value,adc_value])
-            self.save_data(self.total_file_name)
-            self.save_data(self.temporal_file_name)
+        self.save_json([ts,dac_value,adc_value])
+        self.save_data(self.total_file_name)
+        self.save_data(self.temporal_file_name)
 
         # time_to_wait = self.step/self.scan_rate
         time.sleep(time_to_wait)
@@ -248,15 +246,15 @@ class Libconversor(Libdata):
                 break
 
             if up:
-                self.process_data(initial_value-step,counter,1/freq_sample,up)
+                self.process_data(initial_value-step,1/freq_sample)
                 counter += 1
                 if counter == int(self.point_per_loop/2):
                     up = False
                     down = True
                     counter = 0
-                
+
             elif down:
-                self.process_data(-amplitude-step,counter,1/freq_sample,up)
+                self.process_data(-amplitude-step,1/freq_sample)
                 counter += 1
                 if counter == self.point_per_loop-int(self.point_per_loop/2):
                     up = True
