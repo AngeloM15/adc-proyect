@@ -69,8 +69,9 @@ class Libdata():
 
         self.signal_df = df
 
-    def filter_data(self,df,symbol):
+    def filter_data(self,symbol):
 
+        df = self.signal_df
         df.drop_duplicates(subset = ["DAC"], inplace = True)
         if symbol == "positive":
             df_filter = df.loc[df["ADC"]>0]
@@ -88,9 +89,9 @@ class Libdata():
     def plot_data(self,type_wave):
 
         df = self.signal_df
-        df_positive = self.filter_data(df,"positive")
-        df_negative = self.filter_data(df,"negative")
-        
+        df_positive = self.filter_data("positive")
+        df_negative = self.filter_data("negative")
+
         # Plot data
         sns.set(style="darkgrid", context = "paper", rc={'figure.figsize':(10,8)})
         fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
