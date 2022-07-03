@@ -70,12 +70,12 @@ class Libdata():
 
     def filter_data(self,df,symbol):
 
-        df.drop_duplicates(subset = ["DAC"],inplace = True)
-
+        df_filter = df.drop_duplicates(subset = ["DAC"])
+        log.info(f"filter table:\n{df_filter}")
         if symbol == "positive":
-            return df.loc[df["ADC"]>0]
+            return df_filter.loc[df_filter["ADC"]>0]
         elif symbol == "negative":
-            return df.loc[df["ADC"]<0]
+            return df_filter.loc[df_filter["ADC"]<0]
 
     def plot_data(self):
 
