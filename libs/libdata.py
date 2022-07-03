@@ -69,9 +69,9 @@ class Libdata():
 
         self.signal_df = df
 
-    def filter_data(self,df_to_filter,symbol):
+    def filter_data(self,df,symbol):
 
-        df_to_filter = df_to_filter.copy()
+        df_to_filter = df.copy()
         df_to_filter.drop_duplicates(subset = ["DAC"], inplace = True)
         if symbol == "positive":
             df_filtered = df_to_filter.loc[df_to_filter["ADC"]>0]
