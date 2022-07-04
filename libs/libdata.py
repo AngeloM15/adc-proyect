@@ -101,7 +101,9 @@ class Libdata():
             plt.tight_layout()
             plt.show()
 
-            sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+            g = sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+            plt.xlabel("Potencial (V)")
+            plt.ylabel("Corriente (uA)")
             plt.tight_layout()
             plt.show()
 
@@ -118,6 +120,8 @@ class Libdata():
 
             sns.lineplot(data = df_positive, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
             sns.lineplot(data = df_negative, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+            plt.xlabel("Potencial (V)")
+            plt.ylabel("Corriente (uA)")
             plt.tight_layout()
             plt.show()
 
