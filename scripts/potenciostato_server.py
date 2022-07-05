@@ -60,7 +60,6 @@ def main():
     else:
         log.warning("No mode is enabled, will not process data")
 
-
     # Define data paths
     yearmonth = datetime.now().strftime('%Y-%m')
     libconversor.total_file_name = f"{HOME}/data/raw-data-{yearmonth}.csv"

@@ -69,27 +69,49 @@ class Libdata():
 
         self.signal_df = df
 
-    def filter_data(self,df,symbol):
+    def filter_data(self,df):
 
-        df_to_filter = df.drop_duplicates(subset = ["DAC"])
-        self.save_json(df_to_filter)
-        self.save_data(f"/home/pi/potenciostato-project/data/data_wth_dupl_{symbol}.csv")
+        # Eliminante points that aren't in states change
+        df = df.reset_index()
+        df_to_filter = pd.DataFrame(columns = df.columns)
 
-        if symbol == "positive":
-            # Get al positive peaks
-            df_filtered = df_to_filter.loc[df_to_filter["ADC"]>0]
-            log.info(f"filter table:\n{df_filtered}")
-            return df_filtered
+        for i, row in df.iterrows():
 
-        elif symbol == "negative":
-            # Get al negative peaks
-            df_filtered = df_to_filter.loc[df_to_filter["ADC"]<0]
-            # Add firt positive value
-            s = df_to_filter.iloc[0,:].to_frame().T
-            log.info(f"{s}")
-            df_filtered = pd.concat([s, df_filtered])
-            log.info(f"filter table:\n{df_filtered}")
-            return df_filtered
+            if i > 0:
+                if row["DAC"] != df["DAC"].iloc[i-1]:
+                    df_to_filter=pd.concat([row.to_frame().T,df_to_filter])
+            elif i == 0:
+                df_to_filter=pd.concat([df_to_filter,row.to_frame().T])
+
+        df['DateTime'] = pd.to_datetime(df['DateTime'],format= "%Y-%m-%d %H:%M:%S:%f")
+        df_to_filter = df_to_filter.set_index('DateTime').sort_index()
+
+        # Get al positive peaks
+        df_pos = df_to_filter.loc[df_to_filter["ADC"]>0]
+        log.info(f"positive filter table:\n{df_pos}")
+
+        # Get al negative peaks
+        df_neg = df_to_filter.loc[df_to_filter["ADC"]<0]
+        # Add firt positive value
+        first_row = df_to_filter.iloc[0,:].to_frame().T
+        df_neg = pd.concat([first_row, df_neg])
+        log.info(f"negative filter table:\n{df_neg}")
+
+        # Set dataframe to plot ADC vs DAC
+        df_inter = df_to_filter.copy()
+        df_inter["up_env"] = df_pos["ADC"].astype(float)
+        df_inter["down_env"] = df_neg["ADC"].astype(float)
+
+        df_inter.drop(["ADC","device"],axis = 1,inplace = True)
+        df_inter.reset_index(drop =True,inplace = True)
+        df_inter.sort_values(by=["DAC"], ascending = False,inplace = True)
+        df_inter.interpolate(inplace = True)
+
+        df_inter["total"] = df_inter["down_env"]- df_inter["up_env"]
+        df_inter = df_inter.melt(id_vars = ["DAC"])
+        log.info(f"filter table w interpolation:\n{df_inter}")
+
+        return df_inter,df_pos,df_neg
 
     def plot_data(self,type_wave):
 
@@ -114,8 +136,8 @@ class Libdata():
 
         if type_wave == "square":
 
-            df_positive = self.filter_data(df,"positive")
-            df_negative = self.filter_data(df,"negative")
+            df_interpolate, df_positive, df_negative = self.filter_data(df)
+
             sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
             sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)
             sns.lineplot(data = df_positive, x = df_positive.index, y = "ADC", ax = ax2)
@@ -123,8 +145,7 @@ class Libdata():
             plt.tight_layout()
             plt.show()
 
-            sns.lineplot(data = df_positive, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
-            sns.lineplot(data = df_negative, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
+            sns.lineplot(data = df_interpolate, x="DAC", y="value",hue ="variable", sort=False, lw=1, estimator=None)
             plt.xlabel("Potencial (V)")
             plt.ylabel("Corriente (uA)")
             plt.tight_layout()
