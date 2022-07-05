@@ -71,15 +71,20 @@ class Libdata():
 
     def filter_data(self,df,symbol):
 
-        df_to_filter = df.copy()
-        df_to_filter.drop_duplicates(subset = ["DAC"], inplace = True)
+        df_to_filter = df.drop_duplicates(subset = ["DAC"])
+        self.save_json(df_to_filter)
+        self.save_data(f"/home/pi/potenciostato-project/data/data_wth_dupl_{symbol}.csv")
+
         if symbol == "positive":
+            # Get al positive peaks
             df_filtered = df_to_filter.loc[df_to_filter["ADC"]>0]
             log.info(f"filter table:\n{df_filtered}")
             return df_filtered
 
         elif symbol == "negative":
+            # Get al negative peaks
             df_filtered = df_to_filter.loc[df_to_filter["ADC"]<0]
+            # Add firt positive value
             s = df_to_filter.iloc[0,:].to_frame().T
             log.info(f"{s}")
             df_filtered = pd.concat([s, df_filtered])
