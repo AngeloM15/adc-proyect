@@ -74,7 +74,7 @@ def main():
         if libconversor.wave_type == "triangular":
             libconversor.triangular_wave()
         elif libconversor.wave_type == "square":
-            libconversor.square_wave_v2()
+            libconversor.square_wave()
 
         # Plot data
         libconversor.load_data(libconversor.temporal_file_name)

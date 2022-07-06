@@ -105,7 +105,11 @@ class Libdata():
         df_inter.drop(["ADC","device"],axis = 1,inplace = True)
         df_inter.reset_index(drop =True,inplace = True)
         df_inter.sort_values(by=["DAC"], ascending = False,inplace = True)
+        # Interpolate
         df_inter.interpolate(inplace = True)
+        # Smooth
+        df_inter = df_inter.ewm(com=5).mean()
+
 
         df_inter["total"] = df_inter["down_env"]- df_inter["up_env"]
         df_inter = df_inter.melt(id_vars = ["DAC"])
@@ -288,7 +292,7 @@ class Libconversor(Libdata):
                     count += 1
                     # print(count)
 
-    def square_wave_v2(self):
+    def square_wave(self):
 
         duty = self.duty_cycle
 

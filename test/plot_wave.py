@@ -40,6 +40,7 @@ def filter_data(df):
 
     # Get al positive peaks
     df_pos = df_to_filter.loc[df_to_filter["ADC"]>0]
+    # df_pos.iloc[0,-1] = -40
     print(f"positive filter table:\n{df_pos}")
 
     # Get al negative peaks
@@ -47,6 +48,7 @@ def filter_data(df):
     # Add firt positive value
     first_row = df_to_filter.iloc[0,:].to_frame().T
     df_neg = pd.concat([first_row, df_neg])
+    df_neg.iloc[0,-1] = 0
     print(f"negative filter table:\n{df_neg}")
 
     # Set dataframe to plot ADC vs DAC
@@ -57,7 +59,11 @@ def filter_data(df):
     df_inter.drop(["ADC","device"],axis = 1,inplace = True)
     df_inter.reset_index(drop =True,inplace = True)
     df_inter.sort_values(by=["DAC"], ascending = False,inplace = True)
-    df_inter.interpolate(inplace = True)
+    # Interpolate NaN values
+    df_inter.interpolate(method='linear',inplace = True)
+    print(df_inter)
+    df_inter = df_inter.ewm(com=5).mean()
+    print(df_inter)
 
     df_inter["total"] = df_inter["down_env"]- df_inter["up_env"]
     df_inter = df_inter.melt(id_vars = ["DAC"])
