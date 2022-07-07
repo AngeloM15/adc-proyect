@@ -132,6 +132,8 @@ class Libdata():
             plt.tight_layout()
             plt.show()
 
+            # Smooth
+            df = df.ewm(com=5).mean()
             g = sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
             plt.xlabel("Potencial (V)")
             plt.ylabel("Corriente (uA)")
