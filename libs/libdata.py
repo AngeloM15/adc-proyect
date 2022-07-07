@@ -225,7 +225,10 @@ class Libconversor(Libdata):
         vol_in = self.chan0.voltage
         amp_in = (vol_in-1.71)*1000/(8.2)-2.1
 
-        log.debug(f"voltage: {round(vol_in,2)}V / current: {round(amp_in,2)}A")
+        # Diodo equation
+        amp_in_fixed = 0.1647*amp_in*amp_in+0.7305*amp_in+0.0544
+
+        log.debug(f"voltage: {round(vol_in,2)}V / current: {round(amp_in_fixed,2)}A")
         return round(amp_in,2)
         # return np.random.normal()
 
