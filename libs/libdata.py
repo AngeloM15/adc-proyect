@@ -69,7 +69,7 @@ class Libdata():
 
         self.signal_df = df
 
-    def filter_data(self,df):
+    def filter_data(self,df,filter_factor):
 
         # Eliminante points that aren't in states change
         df = df.reset_index()
@@ -108,8 +108,7 @@ class Libdata():
         # Interpolate
         df_inter.interpolate(inplace = True)
         # Smooth
-        df_inter = df_inter.ewm(com=5).mean()
-
+        df_inter = df_inter.ewm(com=filter_factor).mean()
 
         df_inter["total"] = df_inter["down_env"]- df_inter["up_env"]
         df_inter = df_inter.melt(id_vars = ["DAC"])
@@ -117,7 +116,7 @@ class Libdata():
 
         return df_inter,df_pos,df_neg
 
-    def plot_data(self,type_wave):
+    def plot_data(self,type_wave,filter_factor):
 
         df = self.signal_df
 
@@ -133,7 +132,7 @@ class Libdata():
             plt.show()
 
             # Smooth
-            df = df.ewm(com=5).mean()
+            df = df.ewm(com=filter_factor).mean()
             g = sns.lineplot(data = df, x="DAC", y="ADC", sort=False, lw=1, estimator=None)
             plt.xlabel("Potencial (V)")
             plt.ylabel("Corriente (uA)")
@@ -142,7 +141,7 @@ class Libdata():
 
         if type_wave == "square":
 
-            df_interpolate, df_positive, df_negative = self.filter_data(df)
+            df_interpolate, df_positive, df_negative = self.filter_data(df,filter_factor)
 
             sns.lineplot(data = df, x = df.index, y = "DAC", ax = ax1)
             sns.lineplot(data = df, x = df.index, y = "ADC", ax = ax2)

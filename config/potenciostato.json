@@ -22,9 +22,6 @@
                 "initial_value": 0,
                 "final_value": -0.5
             }
-        },
-    "ADC":{
-        "FILTER_FACTOR": 5
-    }
+        }
     }
 }

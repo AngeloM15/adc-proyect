@@ -79,7 +79,7 @@ def main():
         # Plot data
         libconversor.load_data(libconversor.temporal_file_name)
         log.info(f"table:\n{libconversor.signal_df}")
-        libconversor.plot_data(libconversor.wave_type)
+        libconversor.plot_data(libconversor.wave_type,5)
 
         # Send data
         for i,row in libconversor.signal_df.iterrows():
