@@ -1,10 +1,10 @@
+import json
 import os
 import sys
-from datetime import datetime
 import time
-import json
+from datetime import datetime
 
-HOME = os.path.expanduser('~')+"/potenciostato-project"
+HOME = os.path.expanduser("~") + "/potenciostato-project"
 
 sys.path.append(f"{HOME}")
 
@@ -23,19 +23,19 @@ def main():
         sender_config = config_json["SENDER_PROCESS"]
 
     # Set API
-    libutils.set_channel(sender_config["CHANNEL_ID"],sender_config["WRITE_KEY"])
-    
+    libutils.set_channel(sender_config["CHANNEL_ID"], sender_config["WRITE_KEY"])
+
     # Set period
     every = sender_config["PERIOD"]
 
     # Define data paths
-    yearmonth = datetime.now().strftime('%Y-%m')
+    yearmonth = datetime.now().strftime("%Y-%m")
     libconversor.temporal_file_name = f"{HOME}/data/tem-data-{yearmonth}.csv"
     libconversor.load_data(libconversor.temporal_file_name)
 
     # Send data
-    for i,row in libconversor.signal_df.iterrows():
-        #libutils.write_data(row["DAC"],row["ADC"])
+    for i, row in libconversor.signal_df.iterrows():
+        # libutils.write_data(row["DAC"],row["ADC"])
         print(row)
         time.sleep(every)
 

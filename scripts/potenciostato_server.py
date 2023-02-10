@@ -1,18 +1,18 @@
+import argparse
+import json
+import logging
 import os
 import sys
-import argparse
-import logging
-import traceback
-import json
 import time
-
+import traceback
 from datetime import datetime
 
 #
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 #
-HOME = os.path.expanduser('~')+"/potenciostato-project"
+HOME = os.path.expanduser("~") + "/potenciostato-project"
 
 sys.path.append(f"{HOME}")
 
@@ -42,26 +42,28 @@ def main():
         pot_config = config_json["POTENCIOSTATO_PROCESS"]
 
     # Set API
-    libutils.set_channel(sender_config["CHANNEL_ID"],sender_config["WRITE_KEY"])
+    libutils.set_channel(sender_config["CHANNEL_ID"], sender_config["WRITE_KEY"])
 
     # Set conversors
     libconversor.set_dac(potenciotato_config["DAC"])
     libconversor.set_adc()
 
-    every = 60 # by default, sed every 1 minute
+    every = 60  # by default, sed every 1 minute
 
     # Variable to enable potenciotato mode
     potenciotato_mode = pot_config["ENABLE"]
 
     if potenciotato_mode:
         every = sender_config["PERIOD"]
-        log.info("Potenciostato mode is enabled, will send every {} seconds".format(every))
+        log.info(
+            "Potenciostato mode is enabled, will send every {} seconds".format(every)
+        )
 
     else:
         log.warning("No mode is enabled, will not process data")
 
     # Define data paths
-    yearmonth = datetime.now().strftime('%Y-%m')
+    yearmonth = datetime.now().strftime("%Y-%m")
     libconversor.total_file_name = f"{HOME}/data/raw-data-{yearmonth}.csv"
     libconversor.temporal_file_name = f"{HOME}/data/tem-data-{yearmonth}.csv"
 
@@ -79,11 +81,11 @@ def main():
         # Plot data
         libconversor.load_data(libconversor.temporal_file_name)
         log.info(f"table:\n{libconversor.signal_df}")
-        libconversor.plot_data(libconversor.wave_type,5)
+        libconversor.plot_data(libconversor.wave_type, 5)
 
         # Send data
-        for i,row in libconversor.signal_df.iterrows():
-            libutils.write_data(row["DAC"],row["ADC"])
+        for i, row in libconversor.signal_df.iterrows():
+            libutils.write_data(row["DAC"], row["ADC"])
             time.sleep(every)
 
     else:
@@ -92,24 +94,35 @@ def main():
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(add_help=False, description='Script for CounterParser processing')
-    parser.add_argument( "--log-level", dest="loglevel", default=logging.INFO, \
-                    type=lambda x: getattr(logging, x), help="Configure the logging level.", )
-                    
+    parser = argparse.ArgumentParser(
+        add_help=False, description="Script for CounterParser processing"
+    )
+    parser.add_argument(
+        "--log-level",
+        dest="loglevel",
+        default=logging.INFO,
+        type=lambda x: getattr(logging, x),
+        help="Configure the logging level.",
+    )
+
     args = parser.parse_args()
 
     # create logger with 'main'
-    log = logging.getLogger('main')
+    log = logging.getLogger("main")
     log.setLevel(level=args.loglevel)
     # create console handler
     ch = logging.StreamHandler()
     ch.setLevel(level=args.loglevel)
     # create formatter and add it to the handlers
-    if args.loglevel == 10: # DEBUG
+    if args.loglevel == 10:  # DEBUG
         # %(filename)s:%(lineno)s
-        formatter = logging.Formatter('%(asctime)s | %(levelname)7s | %(filename)s:%(funcName)5s:%(lineno)s | %(message)s')	
+        formatter = logging.Formatter(
+            "%(asctime)s | %(levelname)7s | %(filename)s:%(funcName)5s:%(lineno)s | %(message)s"
+        )
     else:
-        formatter = logging.Formatter('%(asctime)s | %(levelname)7s | %(funcName)5s | %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s | %(levelname)7s | %(funcName)5s | %(message)s"
+        )
     ch.setFormatter(formatter)
     # add the handlers to the logger
     log.addHandler(ch)
@@ -120,5 +133,5 @@ if __name__ == "__main__":
         log.error(f"Exception occurred during run: {e}")
         print(traceback.format_exc())
     finally:
-        ts2 = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        ts2 = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         log.info(f"Finishing... {ts2} ")
