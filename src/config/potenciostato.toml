@@ -1,4 +1,0 @@
-[device]
-enable = 1
-signal = 'square'
-sender_period = 20

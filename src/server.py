@@ -1,6 +1,6 @@
 import thingspeak
 
-from tools.config import Credentials
+from tools.config import Api
 
 
 class ThingSpeak:
@@ -8,9 +8,7 @@ class ThingSpeak:
         self.channel = self.set_channel()
 
     def set_channel(self):
-        channel = thingspeak.Channel(
-            id=Credentials.channel, api_key=Credentials.k_write
-        )
+        channel = thingspeak.Channel(id=Api.channel, api_key=Api.k_write)
         return channel
 
     def write_data(self, adc, dac):

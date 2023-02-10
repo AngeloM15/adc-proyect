@@ -1,0 +1,3 @@
+[potenciostato]
+enable = 1
+signal = 'square'

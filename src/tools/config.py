@@ -4,16 +4,16 @@ from dataclasses import dataclass
 import tomli
 
 PROJECT_PATH = "/".join(os.path.abspath(__file__).split("/")[:-2])
-CONFIG_FILE = f"{PROJECT_PATH}/config/credentials.toml"
-POT_FILE = f"{PROJECT_PATH}/config/potenciostato.toml"
+API_FILE = f"{PROJECT_PATH}/config/api.toml"
+DEVICE_FILE = f"{PROJECT_PATH}/config/device.toml"
 SIGNAL_FILE = f"{PROJECT_PATH}/config/signal.toml"
 
 
-with open(CONFIG_FILE, mode="rb") as f_data:
-    config = tomli.load(f_data)
+with open(API_FILE, mode="rb") as f_data:
+    api = tomli.load(f_data)
 
-with open(POT_FILE, mode="rb") as f_data:
-    potenciostato = tomli.load(f_data)
+with open(DEVICE_FILE, mode="rb") as f_data:
+    device = tomli.load(f_data)
 
 with open(SIGNAL_FILE, mode="rb") as f_data:
     triangular = tomli.load(f_data)["triangular"]
@@ -21,17 +21,17 @@ with open(SIGNAL_FILE, mode="rb") as f_data:
 
 
 @dataclass
-class Credentials:
-    channel: int = config["credentials"]["channel"]
-    k_write: int = config["credentials"]["key"]["write"]
-    k_read: int = config["credentials"]["key"]["read"]
+class Api:
+    delay: int = api["settings"]["delay"]
+    channel: int = api["credentials"]["channel"]
+    k_write: int = api["credentials"]["write_key"]
+    k_read: int = api["credentials"]["read_key"]
 
 
 @dataclass
 class Potenciostato:
-    enable: int = potenciostato["enable"]
-    signal: str = potenciostato["signal"]
-    period: int = potenciostato["sender_period"]
+    enable: int = device["potenciostato"]["enable"]
+    signal: str = device["potenciostato"]["signal"]
 
 
 @dataclass

@@ -7,18 +7,18 @@ import traceback
 from datetime import datetime
 
 import server
-from tools.config import Potenciostato
+from tools.config import Api, Potenciostato
 
 HOME = os.path.expanduser("~") + "/potenciostato-project"
 
 sys.path.append(f"{HOME}")
 
 from src.libdata import *
-from src.server import *
 
 
 def main():
     """Main routine schedules the data gathering each period and process the data at the end"""
+
     log.info("###### Starting Potenciostato Processing ######")
 
     # Libraries init
@@ -27,7 +27,7 @@ def main():
     # Initialize ThingSpeak API
     th_server = server.ThingSpeak()
 
-    # Initialize i2c
+    # Initialize comunnication with the device
     libconversor = Libconversor()
 
     every = 60  # by default, sed every 1 minute
@@ -36,7 +36,7 @@ def main():
     potenciotato_mode = Potenciostato.enable
 
     if potenciotato_mode:
-        every = Potenciostato.period
+        every = Api.delay
         log.info(
             "Potenciostato mode is enabled, will send every {} seconds".format(every)
         )
