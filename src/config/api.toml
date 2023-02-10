@@ -1,0 +1,7 @@
+[settings]
+delay = 20
+
+[credentials]
+channel = 12345
+write_key = 'xxxxxxxxxxx'
+read_key = 'xxxxxxxxxxxx'
