@@ -17,6 +17,9 @@ import seaborn as sns
 from adafruit_ads1x15.ads1x15 import Mode
 from adafruit_ads1x15.analog_in import AnalogIn
 
+from tools import data
+from tools.config import Potenciostato, Square, Triangular
+
 module_logger = logging.getLogger("main.libdata")
 log = logging.getLogger("main.libdata.Libdata")
 
@@ -170,60 +173,26 @@ class Libdata:
             plt.show()
 
 
-class Libconversor(Libdata):
+class Libconversor:
     def __init__(self):
-        Libdata.__init__(self)
+        self.data = data.Data()
 
         # Initialize I2C bus.
-        self.i2c = busio.I2C(board.SCL, board.SDA)
+        i2c = busio.I2C(board.SCL, board.SDA)
 
-    def set_dac(self, dac_dict):
-
-        # Initialize MCP4725.
-        self.dac = adafruit_mcp4725.MCP4725(self.i2c)
+        # Set DAC
+        self.dac = adafruit_mcp4725.MCP4725(i2c)
         # amp = adafruit_max9744.MAX9744(self.i2c, address=0x60)
-        log.info("============================================================")
 
-        if dac_dict["TRIANGULAR"]["ENABLE"]:
-            dac_param = dac_dict["TRIANGULAR"]
-            self.wave_type = "triangular"
-            self.scan_rate = dac_param["SCAN_RATE"]
-            self.step = dac_param["STEP"]
-
-            self.n_period = dac_param["NUMBER_OF_LOOPS"]
-            self.initial_value = dac_param["CURVE_PARAMETER"]["initial_value"]
-            self.max_value = dac_param["CURVE_PARAMETER"]["max_value"]
-            self.min_value = dac_param["CURVE_PARAMETER"]["min_value"]
-
-        elif dac_dict["SQUARE"]["ENABLE"]:
-            log.info("**************** Square wave generation ****************")
-            dac_param = dac_dict["SQUARE"]["CURVE_PARAMETER"]
-            self.wave_type = "square"
-            self.freq_sample = dac_param["freq_sample"]
-            self.frequency = dac_param["frequency"]
-            self.amplitude = dac_param["amplitude"]
-            self.offset = dac_param["offset"]
-            self.duty_cycle = dac_param["duty_cycle"]
-            self.initial_value = dac_param["initial_value"]
-            self.final_value = dac_param["final_value"]
-
-            log.info(f"frequency ---> {self.frequency}")
-            log.info(f"amplitude ---> {self.amplitude}")
-            log.info(f"offset ---> {self.offset}")
-            log.info(f"initial value ---> {self.initial_value}")
-            log.info(f"final value ---> {self.final_value}")
-
-        log.info("============================================================")
-
-    def set_adc(self):
-        # Create the ADC object using the I2C bus
-        self.ads = ADS.ADS1115(self.i2c)
+        # Set ADC
+        self.ads = ADS.ADS1115(i2c)
         # Create single-ended input on channel 0
         self.chan0 = AnalogIn(self.ads, ADS.P0)
+
         # ADC Configuration
-        if self.wave_type == "triangular":
+        if Potenciostato.signal == "triangular":
             self.ads.mode = Mode.CONTINUOUS
-        elif self.wave_type == "square":
+        elif Potenciostato.signal == "square":
             self.ads.mode = Mode.SINGLE
             self.ads.data_rate = 860
 
@@ -242,7 +211,6 @@ class Libconversor(Libdata):
 
         log.debug(f"voltage: {round(volt_in_fixed,2)}V / current: {round(amp_in,2)}A")
         return round(amp_in, 2)
-        # return np.random.normal()
 
     def process_data(self, dac_value, time_to_wait):
 
@@ -252,27 +220,25 @@ class Libconversor(Libdata):
         self.send_dac(dac_value)
         adc_value = self.get_adc()
 
-        self.save_json([ts, dac_value, adc_value])
-        self.save_data(self.total_file_name)
-        self.save_data(self.temporal_file_name)
+        self.data.save_json([ts, dac_value, adc_value])
+        self.data.save_data(self.total_file_name)
+        self.data.save_data(self.temporal_file_name)
 
         # time_to_wait = self.step/self.scan_rate
         time.sleep(time_to_wait)
 
     def triangular_wave(self):
-        """
-        Triangular curve generation using JSON parameters
-        """
-        initial_value = self.initial_value
-        step = self.step
+        """Triangular curve generation."""
+        initial_value = Triangular.init
+        step = Triangular.steps
         count = 1
         n_loop = 0
         up = True
         down = False
-        max_loop = self.n_period
-        max_value = self.max_value
-        min_value = self.min_value
-        p_sample = self.step / self.scan_rate
+        max_loop = Triangular.loops
+        max_value = Triangular.max
+        min_value = Triangular.min
+        p_sample = step / Triangular.scan_rate
 
         value = round(initial_value, 2)
         self.process_data(value, p_sample)
@@ -310,21 +276,22 @@ class Libconversor(Libdata):
 
     def square_wave(self):
 
-        duty = self.duty_cycle
+        duty = Square.duty_cycle
 
         n_loop = 0
         step = 0
-        freq = self.frequency
-        freq_sample = self.freq_sample
+        freq = Square.freq_signal
+        freq_sample = Square.freq_sample
 
         up = True
         down = False
-        amplitude = self.amplitude
-        initial_value = self.initial_value
-        final_value = self.final_value
+        amplitude = Square.amp_signal
+        initial_value = Square.initial
+        final_value = Square.final
         counter = 0
-        self.point_per_loop = freq_sample / freq
-        log.info(f"Points per loop: {int(self.point_per_loop)}")
+        point_per_loop = freq_sample / freq
+
+        log.info(f"Points per loop: {int(point_per_loop)}")
 
         while True:
             if (-amplitude - step) <= final_value:
@@ -333,7 +300,7 @@ class Libconversor(Libdata):
             if up:
                 self.process_data(initial_value - step, 1 / freq_sample)
                 counter += 1
-                if counter == int(self.point_per_loop / 2):
+                if counter == int(point_per_loop / 2):
                     up = False
                     down = True
                     counter = 0
@@ -341,7 +308,7 @@ class Libconversor(Libdata):
             elif down:
                 self.process_data(-amplitude - step, 1 / freq_sample)
                 counter += 1
-                if counter == self.point_per_loop - int(self.point_per_loop / 2):
+                if counter == point_per_loop - int(point_per_loop / 2):
                     up = True
                     down = False
                     counter = 0

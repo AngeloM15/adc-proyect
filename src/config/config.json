@@ -1,0 +1,11 @@
+{
+    "SENDER_PROCESS":{
+        "PERIOD": 20,
+        "CHANNEL_ID": 1771605,
+        "WRITE_KEY": "TL2SQ8QAKQ2UMSPF",
+        "READ_KEY": "YELTAF76LQZ3SNCN"    
+    },
+    "POTENCIOSTATO_PROCESS":{
+        "ENABLE": 1
+    }
+}

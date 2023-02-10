@@ -8,8 +8,8 @@ HOME = os.path.expanduser('~')+"/potenciostato-project"
 
 sys.path.append(f"{HOME}")
 
-from libs.libdata import *
-from libs.libutils import *
+from src.libdata import *
+from src.server import *
 
 
 def main():

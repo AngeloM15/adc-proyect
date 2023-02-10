@@ -1,5 +1,4 @@
 import argparse
-import json
 import logging
 import os
 import sys
@@ -7,60 +6,43 @@ import time
 import traceback
 from datetime import datetime
 
-#
-import matplotlib.pyplot as plt
-import seaborn as sns
+import server
+from tools.config import Potenciostato
 
-#
 HOME = os.path.expanduser("~") + "/potenciostato-project"
 
 sys.path.append(f"{HOME}")
 
-from libs.libdata import *
-from libs.libutils import *
+from src.libdata import *
+from src.server import *
 
 
 def main():
-    """
-    Main routine schedules the data gathering each period and process the data at the end
-    """
+    """Main routine schedules the data gathering each period and process the data at the end"""
     log.info("###### Starting Potenciostato Processing ######")
 
     # Libraries init
     log.debug("Init libraries")
-    libutils = Libutils()
+
+    # Initialize ThingSpeak API
+    th_server = server.ThingSpeak()
+
+    # Initialize i2c
     libconversor = Libconversor()
-
-    # Read potenciotato.json to get the time interval to process
-    with open(f"{HOME}/config/potenciostato.json") as file:
-        potenciotato_config = json.load(file)
-
-    # Read config.json to get parameters of configuration
-    with open(f"{HOME}/config/config.json") as file:
-        config_json = json.load(file)
-        sender_config = config_json["SENDER_PROCESS"]
-        pot_config = config_json["POTENCIOSTATO_PROCESS"]
-
-    # Set API
-    libutils.set_channel(sender_config["CHANNEL_ID"], sender_config["WRITE_KEY"])
-
-    # Set conversors
-    libconversor.set_dac(potenciotato_config["DAC"])
-    libconversor.set_adc()
 
     every = 60  # by default, sed every 1 minute
 
     # Variable to enable potenciotato mode
-    potenciotato_mode = pot_config["ENABLE"]
+    potenciotato_mode = Potenciostato.enable
 
     if potenciotato_mode:
-        every = sender_config["PERIOD"]
+        every = Potenciostato.period
         log.info(
             "Potenciostato mode is enabled, will send every {} seconds".format(every)
         )
 
     else:
-        log.warning("No mode is enabled, will not process data")
+        log.warning("Mode is not enabled, will not process data")
 
     # Define data paths
     yearmonth = datetime.now().strftime("%Y-%m")
@@ -73,19 +55,19 @@ def main():
         libconversor.clear_data(libconversor.temporal_file_name)
 
         # Generate wave signal
-        if libconversor.wave_type == "triangular":
+        if Potenciostato.signal == "triangular":
             libconversor.triangular_wave()
-        elif libconversor.wave_type == "square":
+        elif Potenciostato.signal == "square":
             libconversor.square_wave()
 
         # Plot data
         libconversor.load_data(libconversor.temporal_file_name)
         log.info(f"table:\n{libconversor.signal_df}")
-        libconversor.plot_data(libconversor.wave_type, 5)
+        libconversor.plot_data(Potenciostato.signal, 5)
 
         # Send data
         for i, row in libconversor.signal_df.iterrows():
-            libutils.write_data(row["DAC"], row["ADC"])
+            th_server.write_data(row["DAC"], row["ADC"])
             time.sleep(every)
 
     else:

@@ -1,0 +1,16 @@
+[triangular]
+steps = 0.0125
+scan_rate = 0.1
+loops = 1
+init = 0.25
+max = 1.2
+min = -0.1 
+
+[square]
+freq_sample = 8500
+freq_signal = 85
+amp_signal = 0.07
+offset = 0.005
+duty_cycle = 0.5
+initial_value = 0
+final_value = -0.5
