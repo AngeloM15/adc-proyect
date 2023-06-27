@@ -16,8 +16,9 @@ with open(DEVICE_FILE, mode="rb") as f_data:
     device = tomli.load(f_data)
 
 with open(SIGNAL_FILE, mode="rb") as f_data:
-    triangular = tomli.load(f_data)["triangular"]
-    square = tomli.load(f_data)["square"]
+    wave = tomli.load(f_data)
+    triangular = wave["triangular"]
+    square = wave["square"]
 
 
 @dataclass
